@@ -12,6 +12,9 @@ on:
       - "port/PyAssimp/**"
       - ".github/workflows/pyassimp.yml"
 
+permissions:
+  contents: read # to fetch code (actions/checkout)
+
 jobs:
   build-lib:
     name: ${{ matrix.os }}-build-libassimp
