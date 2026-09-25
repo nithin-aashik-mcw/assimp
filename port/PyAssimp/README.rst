@@ -82,10 +82,15 @@ PyAssimp requires a assimp dynamic library (``DLL`` on windows, ``.so``
 on linux, ``.dylib`` on macOS) in order to work. The default search
 directories are:
 
--  the current directory
--  on linux additionally: ``/usr/lib``, ``/usr/local/lib``,
-   ``/usr/lib/x86_64-linux-gnu``
+-  the ``pyassimp`` package directory
+-  on windows additionally: every directory in ``PATH``
+-  on linux/macOS additionally: ``./``, ``/usr/lib``, ``/usr/local/lib``,
+   ``/usr/lib/x86_64-linux-gnu``, ``/usr/lib/aarch64-linux-gnu``,
+   ``LD_LIBRARY_PATH`` (and ``DYLD_LIBRARY_PATH`` on macOS)
 
-To build that library, refer to the Assimp master ``INSTALL``
+The library must match the architecture of your Python interpreter
+(e.g. an ARM64 Python on Windows on ARM needs an ARM64 ``assimp-*.dll``).
+
+To build that library, refer to the Assimp master ``Build.md``
 instructions. To look in more places, edit ``./pyassimp/helper.py``.
 There's an ``additional_dirs`` list waiting for your entries.

@@ -3,6 +3,7 @@ name: Build and Publish Prebuilt Binaries
 on:
   release:
     types: [created]
+  workflow_dispatch:
     
 jobs:
   build:
@@ -24,7 +25,7 @@ jobs:
             arch: arm64
             cmake_args: -A ARM64
           - name: macos-x64
-            os: macos-13
+            os: macos-15-intel
           - name: macos-arm64
             os: macos-latest
           - name: linux-x64

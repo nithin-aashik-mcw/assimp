@@ -11,6 +11,9 @@ on:
     paths:
       - "port/PyAssimp/**"
       - ".github/workflows/pyassimp.yml"
+  release:
+    types: [created]
+  workflow_dispatch:
 
 permissions:
   contents: read # to fetch code (actions/checkout)
@@ -70,3 +73,80 @@ jobs:
         .venv/bin/pip install -e ".[test]"
         .venv/bin/pytest -q
       shell: bash
+
+  # Platform wheels with the assimp DLL bundled inside the pyassimp package.
+  wheel-windows:
+    name: windows-${{ matrix.arch }}-wheel
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            os: windows-latest
+            cmake_arch: x64
+          - arch: x86
+            os: windows-latest
+            cmake_arch: Win32
+          - arch: arm64
+            os: windows-11-arm
+            cmake_arch: ARM64
+    steps:
+    - uses: actions/checkout@v7
+
+    - uses: lukka/get-cmake@latest
+
+    - uses: actions/setup-python@v7
+      with:
+        python-version: "3.13"
+        architecture: ${{ matrix.arch }}
+
+    # Static CRT so the DLL does not need the Visual C++ Redistributable (MSVCP140.dll).
+    - name: build assimp
+      run: |
+        cmake -S . -B build -A ${{ matrix.cmake_arch }} -DBUILD_SHARED_LIBS=ON -DASSIMP_BUILD_TESTS=OFF -DASSIMP_BUILD_ASSIMP_TOOLS=OFF -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
+        cmake --build build --config Release --target assimp --parallel
+      shell: bash
+
+    - name: build wheel
+      run: |
+        dll=$(ls "$PWD"/build/bin/Release/assimp-*.dll)
+        python -m pip install build
+        PYASSIMP_BUNDLE_LIBRARY="$dll" python -m build --wheel --outdir dist port/PyAssimp
+      shell: bash
+
+    # Test the installed wheel, not the source tree, with no assimp on PATH.
+    - name: test wheel
+      run: |
+        python -m venv "$RUNNER_TEMP/venv"
+        py="$RUNNER_TEMP/venv/Scripts/python"
+        "$py" -m pip install dist/*.whl pytest
+        (cd "$RUNNER_TEMP" && "$py" -c "import pyassimp.core as c; p = c._assimp_lib.dll._name; print(p); assert 'site-packages' in p")
+        cd port/PyAssimp
+        "$RUNNER_TEMP/venv/Scripts/pytest" -q -p no:cacheprovider tests
+      shell: bash
+
+    - uses: actions/upload-artifact@v7
+      with:
+        name: pyassimp-wheel-windows-${{ matrix.arch }}
+        path: dist/*.whl
+        if-no-files-found: error
+
+  publish-release:
+    name: attach-wheels-to-release
+    needs: [test, wheel-windows]
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # to upload release assets
+    steps:
+    - uses: actions/download-artifact@v8
+      with:
+        pattern: pyassimp-wheel-*
+        path: dist
+        merge-multiple: true
+
+    - uses: softprops/action-gh-release@v3
+      with:
+        files: dist/*.whl
+        fail_on_unmatched_files: true

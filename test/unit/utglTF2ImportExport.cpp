@@ -262,6 +262,8 @@ TEST_F(utglTF2ImportExport, exportExternalBasisUniversalTexturePath) {
     ASSERT_TRUE(input.good());
     std::stringstream contents;
     contents << input.rdbuf();
+    // Close before removing: Windows cannot delete a file that is still open.
+    input.close();
     rapidjson::Document document;
     document.Parse(contents.str().c_str());
     ASSERT_FALSE(document.HasParseError());
