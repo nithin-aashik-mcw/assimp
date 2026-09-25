@@ -107,25 +107,8 @@ On Windows (PowerShell), put the directory containing the assimp DLL on `PATH`:
 BUILD AND DEPLOY
 ----------------
 
-PyAssimp is a pure-Python (ctypes) package. By default the wheel does not bundle
-`libassimp`; users need a matching Assimp shared library at runtime.
-
-To build a platform wheel that ships the library inside the `pyassimp` package,
-point `PYASSIMP_BUNDLE_LIBRARY` at the built library. The wheel is tagged
-`py3-none-<platform>` and works with any Python 3 of that architecture. On
-Windows, build assimp with the static CRT so the DLL does not need the Visual
-C++ Redistributable:
-
-```console
-> cmake -S . -B build -A x64 -DBUILD_SHARED_LIBS=ON -DASSIMP_BUILD_TESTS=OFF -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
-> cmake --build build --config Release --target assimp
-> $env:PYASSIMP_BUNDLE_LIBRARY = "$PWD\build\bin\Release\assimp-vc143-mt.dll"
-> python -m build --wheel port/PyAssimp
-```
-
-Use `-A Win32` for x86 and `-A ARM64` for Windows on ARM. The PyAssimp CI
-workflow builds these three Windows wheels and attaches them to each GitHub
-release.
+PyAssimp is a pure-Python package. Wheels do not bundle `libassimp`; users still
+need a matching Assimp shared library at runtime.
 
 Bump `version` in `pyproject.toml` before a release. PyPI does not allow
 replacing an existing version; yank and ship a new version if a bad release

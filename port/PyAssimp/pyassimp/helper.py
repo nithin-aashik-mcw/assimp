@@ -194,7 +194,6 @@ def try_load_functions(library_path, dll):
 def search_library():
     '''
     Loads the assimp library.
-    A library bundled in the pyassimp package directory always wins.
     Throws exception AssimpError if no library_path is found
 
     Returns: tuple, (load from filename function,
@@ -216,10 +215,6 @@ def search_library():
     candidates = []
     # test every file
     for curfolder in [folder]+additional_dirs:
-        # a library bundled in the package directory (platform wheels)
-        # wins over libraries found elsewhere
-        if candidates and curfolder != folder:
-            break
         if os.path.isdir(curfolder):
             for filename in os.listdir(curfolder):
                 # our minimum requirement for candidates is that
