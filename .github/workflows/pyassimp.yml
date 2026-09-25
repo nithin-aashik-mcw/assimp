@@ -11,6 +11,7 @@ on:
     paths:
       - "port/PyAssimp/**"
       - ".github/workflows/pyassimp.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read # to fetch code (actions/checkout)
