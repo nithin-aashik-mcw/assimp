@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        name: [ubuntu-latest-g++, macos-latest-clang++, windows-latest-cl.exe, windows-latest-clang.exe, ubuntu-latest-clang++]
+        name: [ubuntu-latest-g++, macos-latest-clang++, windows-latest-cl.exe, windows-latest-clang.exe, windows-arm64-cl.exe, ubuntu-latest-clang++]
         # For Windows msvc, for Linux and macOS let's use the clang compiler, use gcc for Linux.
         include:
           - name: windows-latest-clang.exe
@@ -25,6 +25,11 @@ jobs:
             cc: clang.exe
           - name: windows-latest-cl.exe
             os: windows-latest
+            cxx: cl.exe
+            cc: cl.exe
+          - name: windows-arm64-cl.exe
+            os: windows-11-arm
+            arch: arm64
             cxx: cl.exe
             cc: cl.exe
           - name: windows-hunter-latest-cl.exe
@@ -55,6 +60,8 @@ jobs:
     - uses: lukka/get-cmake@latest
     
     - uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: ${{ matrix.arch || 'x64' }}
     
     - name: Set Compiler Environment
       uses: lukka/set-shell-env@v1
