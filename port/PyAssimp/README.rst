@@ -90,6 +90,6 @@ directories are:
 The library must match the architecture of your Python interpreter
 (e.g. an ARM64 Python on Windows on ARM needs an ARM64 ``assimp-*.dll``).
 
-To build that library, refer to the Assimp master `INSTALL`
+To build that library, refer to the Assimp master ``INSTALL``
 instructions. To look in more places, edit ``./pyassimp/helper.py``.
 There's an ``additional_dirs`` list waiting for your entries.
