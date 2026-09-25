@@ -536,6 +536,8 @@ void WriteLogOpening(const std::string& file) {
     stream << "Assimp " << aiGetVersionMajor() << "." << aiGetVersionMinor() << "." << aiGetVersionRevision() << " "
 #if defined(ASSIMP_BUILD_ARCHITECTURE)
            << ASSIMP_BUILD_ARCHITECTURE
+#elif defined(_M_ARM64EC)
+           << "arm64ec"
 #elif defined(_M_IX86) || defined(__x86_32__) || defined(__i386__)
            << "x86"
 #elif defined(_M_X64) || defined(__x86_64__)
@@ -546,7 +548,9 @@ void WriteLogOpening(const std::string& file) {
            << "ppc32"
 #elif defined(__powerpc64__)
            << "ppc64"
-#elif defined(__arm__)
+#elif defined(_M_ARM64) || defined(__aarch64__)
+           << "arm64"
+#elif defined(_M_ARM) || defined(__arm__)
            << "arm"
 #else
            << "<unknown architecture>"
